@@ -7,7 +7,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.21'
 }
 
-group = "com.github.mafia.vyasma.polemica-library"
+group = "com.github.Vyasma-Mafia.polemica-library"
 version = "1.0-SNAPSHOT"
 
 repositories {
