@@ -7,8 +7,8 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.21'
 }
 
-group = "com.github.Vyasma-Mafia.polemica-library"
-version = "1.0-SNAPSHOT"
+group = "com.github.Vyasma-Mafia"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
