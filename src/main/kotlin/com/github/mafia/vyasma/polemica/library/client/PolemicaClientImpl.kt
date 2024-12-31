@@ -19,7 +19,11 @@ class PolemicaClientImpl(
     private var polemicaToken: String? = null
     private val lock = ReentrantLock()
     private val webClient = WebClient.builder().baseUrl(polemicaBaseUrl).filter { request, next ->
-        addAuthorizationHeader(request, next)
+        if (isAuthRequest(request)) {
+            next.exchange(request)
+        } else {
+            addAuthorizationHeader(request, next)
+        }
     }.build()
 
     override fun getGameFromClub(clubGameId: PolemicaClient.PolemicaClubGameId): PolemicaGame {
@@ -91,6 +95,10 @@ class PolemicaClientImpl(
                 .build()
             next.exchange(retryRequest)
         }
+    }
+
+    private fun isAuthRequest(request: ClientRequest): Boolean {
+        return request.url().path.startsWith("/v1/auth/login")
     }
 
     private fun getValidToken(): String {
