@@ -1,5 +1,6 @@
 package com.github.mafia.vyasma.polemica.library.client
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.mafia.vyasma.polemica.library.model.game.PolemicaGame
 import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ClientResponse
@@ -115,9 +116,11 @@ class PolemicaClientImpl(
             .uri("/v1/auth/login")
             .bodyValue(authData)
             .retrieve()
-            .bodyToMono(String::class.java)
-            .block() ?: throw RuntimeException("Failed to refresh auth token")
+            .bodyToMono(TokenData::class.java)
+            .block()
+            ?.token ?: throw RuntimeException("Failed to refresh auth token")
     }
 
     private data class AuthData(val username: String, val password: String)
+    private data class TokenData(@JsonProperty("access_token") val token: String)
 }
