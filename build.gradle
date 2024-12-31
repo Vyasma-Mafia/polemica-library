@@ -31,6 +31,7 @@ publishing {
 
 jar {
     enabled = true
+    archiveFileName = 'polemica-library-' + version + '.jar'
 }
 
 kotlinSourcesJar {
