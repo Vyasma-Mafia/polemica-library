@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.github.Vyasma-Mafia"
-version = "1.0.5"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -31,7 +31,7 @@ publishing {
 
 jar {
     enabled = true
-    archiveFileName = 'polemica-library-' + version + '.jar'
+    archiveClassifier = ''
 }
 
 kotlinSourcesJar {
