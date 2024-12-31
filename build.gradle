@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.github.Vyasma-Mafia"
-version = "1.0.3"
+version = "1.0.4"
 
 repositories {
     mavenCentral()
@@ -23,7 +23,7 @@ tasks.test {
 
 publishing {
     publications {
-        maven(MavenPublication) {
+        library(MavenPublication) {
             from components.java
         }
     }
