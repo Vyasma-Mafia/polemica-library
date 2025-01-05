@@ -95,7 +95,7 @@ class PolemicaClientImpl(
         scoringType: Int?
     ): List<PolemicaClient.CompetitionPlayerResult> {
         return webClient.get()
-            .uri { it.path("/v1/competitions/${id}/metrics").queryParam("scoreType", scoringType).build() }
+            .uri { it.path("/v1/competitions/${id}/metrics").queryParam("scoringType", scoringType).build() }
             .retrieve()
             .bodyToFlux(PolemicaClient.CompetitionPlayerResult::class.java)
             .collectList()
