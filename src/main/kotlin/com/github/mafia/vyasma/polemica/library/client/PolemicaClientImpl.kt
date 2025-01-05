@@ -17,7 +17,7 @@ class PolemicaClientImpl(
     private val polemicaPassword: String
 ) : PolemicaClient {
 
-    public var polemicaToken: String? = null
+    private var polemicaToken: String? = null
     private val lock = ReentrantLock()
     private val webClient = WebClient.builder().baseUrl(polemicaBaseUrl).filter { request, next ->
         if (isAuthRequest(request)) {
@@ -131,7 +131,7 @@ class PolemicaClientImpl(
     }
 
     @Synchronized
-    public fun refreshAuthToken() {
+    fun refreshAuthToken() {
         val authData = AuthData(polemicaUsername, polemicaPassword)
         polemicaToken = webClient.post()
             .uri("/v1/auth/login")
