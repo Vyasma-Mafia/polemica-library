@@ -58,7 +58,7 @@ interface PolemicaClient {
     @JsonDeserialize(using = RoleDeserializer::class)
     enum class PolemicaCompetitionMemberStatus(override val value: Int) : IntEnum {
         APPROVED(1),
-        NON_APPROVED(2);
+        NON_APPROVED(0);
     }
 
     class RoleDeserializer :
