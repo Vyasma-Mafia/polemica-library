@@ -90,9 +90,12 @@ class PolemicaClientImpl(
             .block() ?: throw RuntimeException("Get competitions error")
     }
 
-    override fun getCompetitionResultMetrics(id: Long): List<PolemicaClient.CompetitionPlayerResult> {
+    override fun getCompetitionResultMetrics(
+        id: Long,
+        scoringType: Int?
+    ): List<PolemicaClient.CompetitionPlayerResult> {
         return webClient.get()
-            .uri("/v1/competitions/${id}/metrics?scoringType=1")
+            .uri { it.path("/v1/competitions/${id}/metrics").queryParam("queryParam", scoringType).build() }
             .retrieve()
             .bodyToFlux(PolemicaClient.CompetitionPlayerResult::class.java)
             .collectList()

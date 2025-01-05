@@ -19,7 +19,7 @@ interface PolemicaClient {
     fun getGamesFromCompetition(id: Long): List<PolemicaTournamentGameReference>
     fun getGameFromCompetition(polemicaCompetitionGameId: PolemicaCompetitionGameId): PolemicaGame
     fun getCompetitionMembers(id: Long): List<PolemicaCompetitionMember>
-    fun getCompetitionResultMetrics(id: Long): List<CompetitionPlayerResult>
+    fun getCompetitionResultMetrics(id: Long, scoringType: Int?): List<CompetitionPlayerResult>
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     data class CompetitionPlayerResult(
