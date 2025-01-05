@@ -17,7 +17,7 @@ class PolemicaClientImpl(
     private val polemicaPassword: String
 ) : PolemicaClient {
 
-    private var polemicaToken: String? = null
+    public var polemicaToken: String? = null
     private val lock = ReentrantLock()
     private val webClient = WebClient.builder().baseUrl(polemicaBaseUrl).filter { request, next ->
         if (isAuthRequest(request)) {
@@ -81,6 +81,24 @@ class PolemicaClientImpl(
             .block() ?: throw RuntimeException("Get game from competition error")
     }
 
+    override fun getCompetitionMembers(id: Long): List<PolemicaClient.PolemicaCompetitionMember> {
+        return webClient.get()
+            .uri("/v1/competitions/${id}/members")
+            .retrieve()
+            .bodyToFlux(PolemicaClient.PolemicaCompetitionMember::class.java)
+            .collectList()
+            .block() ?: throw RuntimeException("Get competitions error")
+    }
+
+    override fun getCompetitionResultMetrics(id: Long): List<PolemicaClient.CompetitionPlayerResult> {
+        return webClient.get()
+            .uri("/v1/competitions/${id}/metrics?scoringType=1")
+            .retrieve()
+            .bodyToFlux(PolemicaClient.CompetitionPlayerResult::class.java)
+            .collectList()
+            .block() ?: throw RuntimeException("Get competitions error")
+    }
+
     private fun addAuthorizationHeader(request: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {
         val token = getValidToken()
         val filteredRequest = ClientRequest.from(request)
@@ -110,7 +128,7 @@ class PolemicaClientImpl(
     }
 
     @Synchronized
-    private fun refreshAuthToken() {
+    public fun refreshAuthToken() {
         val authData = AuthData(polemicaUsername, polemicaPassword)
         polemicaToken = webClient.post()
             .uri("/v1/auth/login")
