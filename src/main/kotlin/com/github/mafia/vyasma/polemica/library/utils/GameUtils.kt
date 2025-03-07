@@ -18,30 +18,30 @@ fun PolemicaGame.getFirstKilled() = this.getKilled().find { it.night == 1 }?.pos
 
 fun PolemicaGame.getKilled(): List<KilledPlayer> {
     // all shots victims in nights equal
-    return this.shots.groupBy { it.night }.map { (night, shots) ->
+    return this.shots?.groupBy { it.night }?.map { (night, shots) ->
         val candidates = shots.map { it.victim }.toSet()
         if (candidates.size == 1) {
             KilledPlayer(candidates.first(), night)
         } else {
             KilledPlayer(null, night)
         }
-    }
+    } ?: listOf()
 }
 
 fun PolemicaGame.getDon(): Position {
-    return this.players.find { it.role == Role.DON }!!.position
+    return this.players!!.find { it.role == Role.DON }!!.position
 }
 
 fun PolemicaGame.getSheriff(): Position {
-    return this.players.find { it.role == Role.SHERIFF }!!.position
+    return this.players!!.find { it.role == Role.SHERIFF }!!.position
 }
 
 fun PolemicaGame.getRole(position: Position): Role {
-    return this.players.find { it.position == position }!!.role
+    return this.players!!.find { it.position == position }!!.role
 }
 
 fun PolemicaGame.getFinalVotes(): List<FinalVote> {
-    return this.votes.groupBy { it.day }.map { (day, votes) ->
+    return this.votes?.groupBy { it.day }?.map { (day, votes) ->
         val votesNumMax = votes.map { it.num }.max()
         if (votesNumMax == 0) {
             return@map emptyList()
@@ -61,15 +61,15 @@ fun PolemicaGame.getFinalVotes(): List<FinalVote> {
             realVotes
                 .map { FinalVote(day, it.voter, listOf(it.candidate), it.candidate == convicted) }
         }
-    }.flatten()
+    }?.flatten() ?: listOf()
 }
 
 fun PolemicaGame.playersOnTable(): List<Position> {
-    return this.players.map { it.position }.minus(this.getKickedFromTable().map { it.position }.toSet())
+    return this.players!!.map { it.position }.minus(this.getKickedFromTable().map { it.position }.toSet())
 }
 
 fun PolemicaGame.playersWithRoles(roles: List<Role>): List<Position> {
-    return this.players.filter { it.role in roles }.map { it.position }
+    return this.players!!.filter { it.role in roles }.map { it.position }
 }
 
 fun PolemicaGame.isRedWin() = result == PolemicaGameResult.RED_WIN
@@ -97,7 +97,7 @@ fun PolemicaGame.getKickedFromTable(): List<KickedPlayer> {
                 )
             }
         }
-    val disqualed = players.filter { it.disqual != null }
+    val disqualed = players!!.filter { it.disqual != null }
         .map { KickedPlayer(it.position, GamePhase(it.disqual!!.day, Phase.NIGHT), KickReason.DISQUAL) }
     return (killedPlayers + votedPlayers + disqualed).toSet().sortedBy { it.gamePhase }
 }
@@ -137,11 +137,11 @@ data class InPolemicaGameContext(val game: PolemicaGame) {
     }
 
     fun Position.guess(): PolemicaGuess? {
-        return game.players.find { it.position == this@guess }?.guess
+        return game.players!!.find { it.position == this@guess }?.guess
     }
 
     fun Position.player(): PolemicaPlayer {
-        return game.players.find { it.position == this@player }!!
+        return game.players!!.find { it.position == this@player }!!
     }
 
     fun assert(boolean: Boolean) {
