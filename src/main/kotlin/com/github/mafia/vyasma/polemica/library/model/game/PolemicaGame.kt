@@ -19,12 +19,16 @@ data class PolemicaGame(
     val players: List<PolemicaPlayer>?,
     val checks: List<PolemicaCheck>?,
     val shots: List<PolemicaShot>?,
-    val stage: Stage,
+    val stage: Stage?,
     val votes: List<PolemicaVote>?,
     val comKiller: Position?,
     val bonuses: List<PolemicaBonus>?,
     val started: LocalDateTime,
     val stop: Stage?,
     val isLive: Boolean?,
-    val result: PolemicaGameResult?
+    val result: PolemicaGameResult?,
+    val num: Int?,
+    val table: Int?,
+    val phase: Int?,
+    val factor: Double?
 )
