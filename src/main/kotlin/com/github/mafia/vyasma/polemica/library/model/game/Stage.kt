@@ -19,6 +19,8 @@ data class Stage(
 @JsonDeserialize(using = StageTypeDeserializer::class)
 enum class StageType(override val value: String) : StringEnum {
     DEALING("dealing"),
+    BRIEFING("briefing"),
+    COM_INTRO("comIntro"),
     SPEECH("speech"),
     VOTING("voting"),
     VOTED("voted"),
@@ -28,6 +30,7 @@ enum class StageType(override val value: String) : StringEnum {
     LIFT("lift"),
     DON_CHECK("donCheck"),
     COM_CHECK("comCheck"),
+    GUESS("guess"),
     COM_KILL("comKill"),
     GAME_OVER("gameOver")
 }
