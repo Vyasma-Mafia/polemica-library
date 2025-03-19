@@ -6,6 +6,7 @@ import com.github.mafia.vyasma.polemica.library.model.game.PolemicaGuess
 import com.github.mafia.vyasma.polemica.library.model.game.PolemicaPlayer
 import com.github.mafia.vyasma.polemica.library.model.game.Position
 import com.github.mafia.vyasma.polemica.library.model.game.Role
+import com.github.mafia.vyasma.polemica.library.model.game.StageType
 
 fun PolemicaGame.getRealComKiller(): Position? {
     if (getFirstKilled()?.let { this.getRole(it) } != Role.SHERIFF) {
@@ -42,6 +43,9 @@ fun PolemicaGame.getRole(position: Position): Role {
 
 fun PolemicaGame.getFinalVotes(): List<FinalVote> {
     return this.votes?.groupBy { it.day }?.map { (day, votes) ->
+        if (stage?.day == day && stage.type == StageType.VOTING) {
+            return@map emptyList()
+        }
         val votesNumMax = votes.map { it.num }.max()
         if (votesNumMax == 0) {
             return@map emptyList()
@@ -51,10 +55,11 @@ fun PolemicaGame.getFinalVotes(): List<FinalVote> {
         val votingResult = realVotes.groupBy { it.candidate } // candidate -> [voters]
         if (votingResult.isEmpty()) {
             emptyList()
-        } else if (votingResult.values.map { it.size }.toSet().size == 1 && votingResult.size > 1) { // попил
+        } else if (votingResult.values.count { it.size == votingResult.values.maxOf { it.size } } > 1 && votingResult.size > 1) { // попил
             val convicted = votingResult.keys.toList()
             val expelVoters = lastVotes.filter { it.num == 0 }
-            val expelled = expelVoters.size > (realVotes.size - expelVoters.size)
+            val notExpelVotersSize = realVotes.size - expelVoters.size
+            val expelled = expelVoters.size > notExpelVotersSize
             expelVoters.map { FinalVote(day, it.voter, convicted, expelled) }
         } else {
             val convicted = votingResult.maxBy { it.value.size }.key
