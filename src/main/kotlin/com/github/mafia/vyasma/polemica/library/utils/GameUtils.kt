@@ -15,18 +15,36 @@ fun PolemicaGame.getRealComKiller(): Position? {
     return this.comKiller ?: this.getDon()
 }
 
-fun PolemicaGame.getFirstKilled() = this.getKilled().find { it.night == 1 }?.position
+fun PolemicaGame.getFirstKilled() = this.getKilled(null).find { it.night == 1 }?.position
 
-fun PolemicaGame.getKilled(): List<KilledPlayer> {
+fun PolemicaGame.getKilled(beforeGamePhase: GamePhase? = null): List<KilledPlayer> {
     // all shots victims in nights equal
-    return this.shots?.groupBy { it.night }?.map { (night, shots) ->
-        val candidates = shots.map { it.victim }.toSet()
-        if (candidates.size == 1) {
-            KilledPlayer(candidates.first(), night)
-        } else {
-            KilledPlayer(null, night)
-        }
-    } ?: listOf()
+    return this.shots
+        ?.filter { it.night < (beforeGamePhase?.num ?: Int.MAX_VALUE) }
+        ?.groupBy { it.night }
+        ?.map { (night, shots) ->
+            val candidates = shots.map { it.victim }.toSet()
+
+            if (candidates.size == 1) {
+                if (beforeGamePhase == null) {
+                    if (playersOnTable(
+                            GamePhase(
+                                this.stage?.day ?: 0,
+                                Phase.NIGHT
+                            )
+                        ).filter { getRole(it).isBlack() } == shots
+                    ) {
+                        KilledPlayer(candidates.first(), night)
+                    } else {
+                        KilledPlayer(null, night)
+                    }
+                } else {
+                    KilledPlayer(candidates.first(), night)
+                }
+            } else {
+                KilledPlayer(null, night)
+            }
+        } ?: listOf()
 }
 
 fun PolemicaGame.getDon(): Position {
@@ -69,8 +87,9 @@ fun PolemicaGame.getFinalVotes(): List<FinalVote> {
     }?.flatten() ?: listOf()
 }
 
-fun PolemicaGame.playersOnTable(): List<Position> {
-    return this.players!!.map { it.position }.minus(this.getKickedFromTable().map { it.position }.toSet())
+fun PolemicaGame.playersOnTable(beforeGamePhase: GamePhase? = null): List<Position> {
+    return this.players!!.map { it.position }
+        .minus(this.getKickedFromTable(beforeGamePhase).map { it.position }.toSet())
 }
 
 fun PolemicaGame.playersWithRoles(roles: List<Role>): List<Position> {
@@ -87,8 +106,8 @@ fun PolemicaGame.getBlacksOnTable(): Set<Position> {
     return blackOnTable
 }
 
-fun PolemicaGame.getKickedFromTable(): List<KickedPlayer> {
-    val killedPlayers = getKilled()
+fun PolemicaGame.getKickedFromTable(beforeGamePhase: GamePhase? = null): List<KickedPlayer> {
+    val killedPlayers = getKilled(beforeGamePhase)
         .filter { it.position != null }
         .map { KickedPlayer(it.position!!, GamePhase(it.night, Phase.NIGHT), KickReason.KILL) }
     val votedPlayers = getFinalVotes()
