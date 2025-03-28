@@ -15,7 +15,7 @@ fun PolemicaGame.getRealComKiller(): Position? {
     return this.comKiller ?: this.getDon()
 }
 
-fun PolemicaGame.getFirstKilled() = this.getKilled(null).find { it.night == 1 }?.position
+fun PolemicaGame.getFirstKilled() = this.getKilled(null).minByOrNull { it.night }?.position
 
 fun PolemicaGame.getKilled(beforeGamePhase: GamePhase? = null): List<KilledPlayer> {
     // all shots victims in nights equal
