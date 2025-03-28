@@ -29,10 +29,10 @@ fun PolemicaGame.getKilled(beforeGamePhase: GamePhase? = null): List<KilledPlaye
                 if (beforeGamePhase == null) {
                     if (playersOnTable(
                             GamePhase(
-                                this.stage?.day ?: 0,
+                                night,
                                 Phase.NIGHT
                             )
-                        ).filter { getRole(it).isBlack() } == shots
+                        ).filter { getRole(it).isBlack() }.size <= shots.size
                     ) {
                         KilledPlayer(candidates.first(), night)
                     } else {
@@ -59,8 +59,10 @@ fun PolemicaGame.getRole(position: Position): Role {
     return this.players!!.find { it.position == position }!!.role
 }
 
-fun PolemicaGame.getFinalVotes(): List<FinalVote> {
-    return this.votes?.groupBy { it.day }?.map { (day, votes) ->
+fun PolemicaGame.getFinalVotes(beforeGamePhase: GamePhase?): List<FinalVote> {
+    return this.votes
+        ?.filter { it.day - 1 < (beforeGamePhase?.num ?: Int.MAX_VALUE) }
+        ?.groupBy { it.day }?.map { (day, votes) ->
         if (stage?.day == day && stage.type == StageType.VOTING) {
             return@map emptyList()
         }
@@ -110,7 +112,7 @@ fun PolemicaGame.getKickedFromTable(beforeGamePhase: GamePhase? = null): List<Ki
     val killedPlayers = getKilled(beforeGamePhase)
         .filter { it.position != null }
         .map { KickedPlayer(it.position!!, GamePhase(it.night, Phase.NIGHT), KickReason.KILL) }
-    val votedPlayers = getFinalVotes()
+    val votedPlayers = getFinalVotes(beforeGamePhase)
         .filter { it.expelled }
         .flatMap { finalVote ->
             finalVote.convicted.map {
@@ -122,6 +124,7 @@ fun PolemicaGame.getKickedFromTable(beforeGamePhase: GamePhase? = null): List<Ki
             }
         }
     val disqualed = players!!.filter { it.disqual != null }
+        .filter { it.disqual!!.day < (beforeGamePhase?.num ?: Int.MAX_VALUE) }
         .map { KickedPlayer(it.position, GamePhase(it.disqual!!.day, Phase.NIGHT), KickReason.DISQUAL) }
     return (killedPlayers + votedPlayers + disqualed).toSet().sortedBy { it.gamePhase }
 }

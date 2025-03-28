@@ -1,0 +1,20 @@
+{
+  "num": 5, "table": 1, "phase": 0, "factor": 1, "started": "2025-03-26T10:00:00.000", "id": 328635, "master": 84894, "referee": {"id": 84894, "username": "bb_admin", "region": null, "city": null, "avatar": "84894/monkey.jpg"}, "zeroVoting": "none", "isLive": true, "scoringVersion": "3.0", "version": 4, "players": [
+  {"position": 1, "username": "генрих", "avatar": null, "role": 3, "techs": [], "fouls": [], "player": {"id": 72809, "username": "генрих", "avatar": null}},
+  {"position": 2, "username": "Велосипедостроитель", "avatar": "73496/4bfa7a7aeddd7608423750044997eaea.jpeg", "role": 1, "techs": [], "fouls": [], "player": {"id": 73496, "username": "Велосипедостроитель", "avatar": "73496/4bfa7a7aeddd7608423750044997eaea.jpeg"}},
+  {"position": 3, "username": "Пересмешница", "avatar": null, "role": 1, "techs": [], "fouls": [], "player": {"id": 89882, "username": "Пересмешница", "avatar": null}},
+  {"position": 4, "username": "BELLEVIL", "avatar": "11798/4a21dcb48dc6cb05f717b89a520d9b92.jpeg", "role": 0, "techs": [], "fouls": [], "player": {"id": 11798, "username": "BELLEVIL", "avatar": "11798/4a21dcb48dc6cb05f717b89a520d9b92.jpeg"}},
+  {"position": 5, "username": "Ммышьяк", "avatar": "60758/97ac0fb5eef0a74794dcce17bf3ab8b8.jpeg", "role": 2, "techs": [], "fouls": [], "player": {"id": 60758, "username": "Ммышьяк", "avatar": "60758/97ac0fb5eef0a74794dcce17bf3ab8b8.jpeg"}},
+  {"position": 6, "username": "Morty", "avatar": null, "role": 2, "techs": [], "fouls": [], "player": {"id": 7778, "username": "Morty", "avatar": null}},
+  {"position": 7, "username": "Фиалка", "avatar": "5963/me.jpg", "role": 2, "techs": [], "fouls": [], "player": {"id": 5963, "username": "Фиалка", "avatar": "5963/me.jpg"}},
+  {"position": 8, "username": "Филологz", "avatar": null, "role": 2, "techs": [], "fouls": [], "player": {"id": 78295, "username": "Филологz", "avatar": null}},
+  {"position": 9, "username": "дальтоник2.0", "avatar": "84566/8b38a9b90ceaab72067d59722977b32f.jpeg", "role": 2, "techs": [], "fouls": [], "player": {"id": 84566, "username": "дальтоник2.0", "avatar": "84566/8b38a9b90ceaab72067d59722977b32f.jpeg"}},
+  {"position": 10, "username": "Juls", "avatar": "85652/4adf99a60f97f748c14829931c495b7b.jpeg", "role": 2, "techs": [], "fouls": [], "player": {"id": 85652, "username": "Juls", "avatar": "85652/4adf99a60f97f748c14829931c495b7b.jpeg"}}
+], "stage": {"type": "speech", "day": 2, "player": 2}, "checks": [
+  {"night": 1, "role": 0, "player": 1}, {"night": 1, "role": 3, "player": 2}
+], "shots": [
+  {"night": 1, "shooter": 2, "victim": 10}, {"night": 1, "shooter": 4, "victim": 10}
+], "votes": [], "bonuses": [], "timer": {"duration": 60000, "started": "2025-03-26T18:00:27.664214"}, "timing": [
+  null, "2025-03-26T17:49:26.758708"
+], "comKiller": 4, "result": null, "scoringType": 1
+}
