@@ -102,6 +102,7 @@ interface PolemicaClient {
         val id: Long,
         val num: Long,
         val table: Long,
+        val phase: Long,
         val started: LocalDateTime,
         val result: PolemicaGameResult?,
         val referee: PolemicaUser,
