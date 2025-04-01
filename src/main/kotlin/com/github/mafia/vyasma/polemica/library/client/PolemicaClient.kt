@@ -16,6 +16,7 @@ interface PolemicaClient {
     fun getGameFromClub(clubGameId: PolemicaClubGameId): PolemicaGame
     fun getGamesFromClub(clubId: Long, offset: Long, limit: Long): List<PolemicaClubGameReference>
     fun getCompetitions(): List<PolemicaCompetition>
+    fun getCompetition(id: Long): PolemicaCompetition?
     fun getGamesFromCompetition(id: Long): List<PolemicaTournamentGameReference>
     fun getGameFromCompetition(polemicaCompetitionGameId: PolemicaCompetitionGameId): PolemicaGame
     fun getCompetitionMembers(id: Long): List<PolemicaCompetitionMember>

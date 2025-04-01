@@ -61,6 +61,14 @@ class PolemicaClientImpl(
             .block() ?: throw RuntimeException("Get competitions error")
     }
 
+    override fun getCompetition(id: Long): PolemicaClient.PolemicaCompetition {
+        return webClient.get()
+            .uri("/v1/competitions/${id}")
+            .retrieve()
+            .bodyToMono(PolemicaClient.PolemicaCompetition::class.java)
+            .block() ?: throw RuntimeException("Get competition error")
+    }
+
     override fun getGamesFromCompetition(id: Long): List<PolemicaClient.PolemicaTournamentGameReference> {
         return webClient.get()
             .uri("/v1/competitions/${id}/games")
