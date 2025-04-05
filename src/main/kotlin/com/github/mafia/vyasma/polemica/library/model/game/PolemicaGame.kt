@@ -14,7 +14,7 @@ data class PolemicaGame(
     val scoringVersion: String?,
     val scoringType: Int,
     val version: Int,
-    val zeroVoting: String?,
+    val zeroVoting: ZeroVoting?,
     val tags: List<String>?,
     val players: List<PolemicaPlayer>?,
     val checks: List<PolemicaCheck>?,

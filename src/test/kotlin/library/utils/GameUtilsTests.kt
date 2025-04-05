@@ -50,4 +50,12 @@ class PolemicaGameTest {
         assertEquals(killed.size, 1)
         assertEquals(killed[0], Position.NINE)
     }
+
+    @Test
+    fun testNoBreakWithSpecialZeroVoting() {
+        val resource = javaClass.classLoader.getResource("games/334187.json")
+        val game: PolemicaGame = objectMapper.readValue(File(resource.path))
+
+        assertEquals(0, game.getFinalVotes(null).filter { it.day == 1 }.size)
+    }
 }

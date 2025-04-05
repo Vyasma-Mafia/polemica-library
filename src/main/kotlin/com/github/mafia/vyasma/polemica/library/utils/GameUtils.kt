@@ -7,6 +7,7 @@ import com.github.mafia.vyasma.polemica.library.model.game.PolemicaPlayer
 import com.github.mafia.vyasma.polemica.library.model.game.Position
 import com.github.mafia.vyasma.polemica.library.model.game.Role
 import com.github.mafia.vyasma.polemica.library.model.game.StageType
+import com.github.mafia.vyasma.polemica.library.model.game.ZeroVoting
 
 fun PolemicaGame.getRealComKiller(): Position? {
     if (getFirstKilled()?.let { this.getRole(it) } != Role.SHERIFF) {
@@ -84,10 +85,17 @@ fun PolemicaGame.getFinalVotes(beforeGamePhase: GamePhase?): List<FinalVote> {
             expelVoters.map { FinalVote(day, it.voter, convicted, expelled) }
         } else {
             val convicted = votingResult.maxBy { it.value.size }.key
+            if (day == 1 && zeroVoting?.withBreak() == false) {
+                return@map emptyList()
+            }
             realVotes
                 .map { FinalVote(day, it.voter, listOf(it.candidate), it.candidate == convicted) }
         }
     }?.flatten() ?: listOf()
+}
+
+fun ZeroVoting.withBreak() = when (this) {
+    ZeroVoting.RESPEECH, ZeroVoting.LIFT_ONLY, ZeroVoting.NONE -> false
 }
 
 fun PolemicaGame.playersOnTable(beforeGamePhase: GamePhase? = null): List<Position> {
