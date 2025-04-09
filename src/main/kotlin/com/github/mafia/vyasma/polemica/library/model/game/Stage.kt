@@ -11,7 +11,8 @@ import com.github.mafia.vyasma.polemica.library.utils.enums.StringEnumSerializer
 data class Stage(
     val type: StageType,
     val day: Int,
-    val player: Int
+    val player: Int,
+    val voting: Int?
 ) {
 }
 

@@ -68,18 +68,17 @@ fun PolemicaGame.getFinalVotes(beforeGamePhase: GamePhase?): List<FinalVote> {
         if (stage?.day == day && stage.type == StageType.VOTING) {
             return@map emptyList()
         }
-        val votesNumMax = votes.map { it.num }.max()
+        val votesNumMax = votes.mapNotNull { it.num }.max()
         if (votesNumMax == 0) {
             return@map emptyList()
         }
-        val lastVotes = votes.dropWhile { it.num < votesNumMax }
-        val realVotes = lastVotes.filter { it.num == votesNumMax }
+        val realVotes = votes.filter { it.num == votesNumMax }
         val votingResult = realVotes.groupBy { it.candidate } // candidate -> [voters]
         if (votingResult.isEmpty()) {
             emptyList()
         } else if (votingResult.values.count { it.size == votingResult.values.maxOf { it.size } } > 1 && votingResult.size > 1) { // попил
             val convicted = votingResult.keys.toList()
-            val expelVoters = lastVotes.filter { it.num == 0 }
+            val expelVoters = votes.filter { it.num == null }
             val notExpelVotersSize = realVotes.size - expelVoters.size
             val expelled = expelVoters.size > notExpelVotersSize
             expelVoters.map { FinalVote(day, it.voter, convicted, expelled) }
@@ -93,6 +92,55 @@ fun PolemicaGame.getFinalVotes(beforeGamePhase: GamePhase?): List<FinalVote> {
         }
     }?.flatten() ?: listOf()
 }
+
+/**
+ * Определяет участников голосования по номеру дня и раунда
+ * @param day номер дня
+ * @param round номер раунда голосования
+ * @return список позиций игроков, участвующих в голосовании
+ */
+fun PolemicaGame.getVotingParticipants(day: Int, round: Int): List<Position> {
+    val votes = this.votes ?: return emptyList()
+
+    // Проверка валидности раунда
+    if (round <= 0) {
+        return emptyList()
+    }
+
+    // Для первого раунда - это игроки, выставленные в круге (num=0)
+    if (round == 1) {
+        return votes
+            .filter { it.day == day && it.num == 0 }
+            .map { it.candidate }
+            .distinct()
+    }
+
+    // Для последующих раундов - анализируем результаты предыдущего раунда
+    val previousRoundVotes = votes.filter { it.day == day && it.num == round - 1 }
+
+    // Если нет голосов в предыдущем раунде, возвращаем пустой список
+    if (previousRoundVotes.isEmpty()) {
+        return emptyList()
+    }
+
+    // Подсчет голосов за каждого кандидата
+    val voteCounts = previousRoundVotes
+        .groupBy { it.candidate }
+        .mapValues { it.value.size }
+
+    // Находим максимальное количество голосов
+    val maxVotes = voteCounts.values.maxOrNull() ?: return emptyList()
+
+    // Получаем кандидатов с максимальным числом голосов
+    val topCandidates = voteCounts
+        .filter { it.value == maxVotes }
+        .keys
+        .toList()
+
+    // Если несколько кандидатов с максимальным числом голосов, они участвуют в следующем раунде
+    return topCandidates
+}
+
 
 fun ZeroVoting.withBreak() = when (this) {
     ZeroVoting.RESPEECH, ZeroVoting.LIFT_ONLY, ZeroVoting.NONE -> false
