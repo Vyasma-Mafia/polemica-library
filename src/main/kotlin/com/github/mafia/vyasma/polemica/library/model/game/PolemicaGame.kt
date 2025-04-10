@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PolemicaGame(
-    val id: Long,
+    val id: Long?,
     val master: Long,
     val referee: PolemicaUser,
     val scoringVersion: String?,

@@ -16,18 +16,18 @@ data class PolemicaPlayer(
     val fouls: List<Foul>,
     val guess: PolemicaGuess?,
     @JsonDeserialize(using = PolemicaPlayerFieldDeserializer::class)
-    val player: Long?,
+    val player: PolemicaUser?,
     val disqual: Stage?,
     val award: Double?
 )
 
-class PolemicaPlayerFieldDeserializer : JsonDeserializer<Long>() {
-    override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): Long? {
+class PolemicaPlayerFieldDeserializer : JsonDeserializer<PolemicaUser>() {
+    override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): PolemicaUser? {
         val node: JsonNode = parser.codec.readTree(parser)
 
         return when {
-            node.isIntegralNumber -> node.asLong()
-            node.isObject -> node.get("id").asLong()
+            node.isIntegralNumber -> PolemicaUser(node.asLong(), "")
+            node.isObject -> PolemicaUser(node.get("id").asLong(), node.get("username").asText())
             node.isNull -> null
             else -> throw IllegalArgumentException("Unexpected JSON for 'player': $node")
         }

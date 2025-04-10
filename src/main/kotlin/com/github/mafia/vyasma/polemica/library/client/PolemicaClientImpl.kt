@@ -1,7 +1,10 @@
 package com.github.mafia.vyasma.polemica.library.client
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.mafia.vyasma.polemica.library.model.game.PolemicaGame
+import org.springframework.http.codec.json.Jackson2JsonDecoder
+import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.ExchangeFunction
@@ -14,12 +17,17 @@ import kotlin.concurrent.withLock
 class PolemicaClientImpl(
     private val polemicaBaseUrl: String,
     private val polemicaUsername: String,
-    private val polemicaPassword: String
+    private val polemicaPassword: String,
+    private val objectMapper: ObjectMapper
 ) : PolemicaClient {
 
     private var polemicaToken: String? = null
     private val lock = ReentrantLock()
-    private val webClient = WebClient.builder().baseUrl(polemicaBaseUrl).filter { request, next ->
+    val webClient = WebClient.builder()
+        .codecs { it.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper)) }
+        .codecs { it.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper)) }
+        .baseUrl(polemicaBaseUrl)
+        .filter { request, next ->
         if (isAuthRequest(request)) {
             next.exchange(request)
         } else {
@@ -98,6 +106,16 @@ class PolemicaClientImpl(
             .block() ?: throw RuntimeException("Get competitions error")
     }
 
+    override fun getCompetitionAdmins(id: Long): List<PolemicaClient.PolemicaCompetitionAdmin> {
+        return webClient.get()
+            .uri("/v1/competitions/${id}/admins")
+            .retrieve()
+            .bodyToFlux(PolemicaClient.PolemicaCompetitionAdmin::class.java)
+            .collectList()
+            .block() ?: throw RuntimeException("Get competitions error")
+    }
+
+
     override fun getCompetitionResultMetrics(
         id: Long,
         scoringType: Int?
@@ -108,6 +126,19 @@ class PolemicaClientImpl(
             .bodyToFlux(PolemicaClient.CompetitionPlayerResult::class.java)
             .collectList()
             .block() ?: throw RuntimeException("Get competitions error")
+    }
+
+    override fun postGameToCompetition(
+        competitionId: Long,
+        game: PolemicaGame
+    ) {
+        webClient.post()
+            .uri("/v1/competitions/${competitionId}/games")
+            .header("Content-Type", "application/json")
+            .bodyValue(game)
+            .retrieve()
+            .toBodilessEntity()
+            .block() ?: throw RuntimeException("Get game from competition error")
     }
 
     private fun addAuthorizationHeader(request: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {

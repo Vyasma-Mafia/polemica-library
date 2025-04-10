@@ -20,7 +20,9 @@ interface PolemicaClient {
     fun getGamesFromCompetition(id: Long): List<PolemicaTournamentGameReference>
     fun getGameFromCompetition(polemicaCompetitionGameId: PolemicaCompetitionGameId): PolemicaGame
     fun getCompetitionMembers(id: Long): List<PolemicaCompetitionMember>
+    fun getCompetitionAdmins(id: Long): List<PolemicaCompetitionAdmin>
     fun getCompetitionResultMetrics(id: Long, scoringType: Int?): List<CompetitionPlayerResult>
+    fun postGameToCompetition(competitionId: Long, game: PolemicaGame)
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     data class CompetitionPlayerResult(
@@ -52,6 +54,13 @@ interface PolemicaClient {
     data class PolemicaCompetitionMember(
         val registration: LocalDateTime,
         val status: PolemicaCompetitionMemberStatus,
+        val player: PolemicaUser
+    )
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    data class PolemicaCompetitionAdmin(
+        val competitionId: Long,
+        val role: Int,
         val player: PolemicaUser
     )
 
