@@ -23,11 +23,15 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+java {
+    withJavadocJar()
+}
 
 publishing {
     publications {
         library(MavenPublication) {
             from components.java
+            artifact kotlinSourcesJar
         }
     }
 }
