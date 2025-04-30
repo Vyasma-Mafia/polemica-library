@@ -9,4 +9,4 @@ jobs:
     steps:
       - uses: badasintended/autojitpack@v1
         with:
-          version: ${{ github.push.base_ref }}
+          version: ${{ github.ref_name }}
