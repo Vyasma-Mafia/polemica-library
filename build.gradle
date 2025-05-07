@@ -10,7 +10,6 @@ plugins {
 
 group = "io.github.mralex1810"
 version = "1.6.1"
-description = "Library for connecting to polemica game site"
 
 repositories {
     mavenCentral()
@@ -41,6 +40,29 @@ publishing {
             from components.java
             artifact kotlinSourcesJar
             artifact tasks.dokkaJavadocJar
+
+            pom {
+                name = "Polemica Library"
+                description = "Library for connecting to Polemica game site"
+                url = "https://github.com/Vyasma-Mafia/polemica-library"
+                licenses {
+                    license {
+                        name = 'Apache-2.0'
+                        url = 'https://spdx.org/licenses/Apache-2.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'mralex1810'
+                        name = 'Alexey Chulkov'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/Vyasma-Mafia/polemica-library.git'
+                    developerConnection = 'scm:git:ssh://github.com/Vyasma-Mafia/polemica-library.git'
+                    url = 'https://github.com/Vyasma-Mafia/polemica-library'
+                }
+            }
         }
     }
     repositories {
