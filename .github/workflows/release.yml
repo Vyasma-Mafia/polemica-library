@@ -16,7 +16,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - name: Build and publish with Gradle
-        uses: gradle/gradle-build-action@3
+        uses: gradle/actions@v4.3.1
         with:
           arguments: --no-daemon -i jreleaserConfig build test publish
         env:
@@ -28,7 +28,7 @@ jobs:
           JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.JRELEASER_GPG_PUBLIC_KEY }}
 
       - name: Release with gradle
-        uses: gradle/gradle-build-action@3
+        uses: gradle/actions@v4.3.1
         with:
           arguments: --no-daemon -i jreleaserFullRelease
         env:
