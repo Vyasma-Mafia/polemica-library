@@ -1,11 +1,14 @@
 plugins {
     id 'maven-publish'
+    id 'java'
+    id 'org.jetbrains.dokka' version "2.0.0"
+    id 'org.jreleaser' version '1.18.0'
     id 'org.springframework.boot' version '3.2.1'
     id 'io.spring.dependency-management' version '1.1.4'
     id 'org.jetbrains.kotlin.jvm' version '1.9.21'
 }
 
-group = "com.github.Vyasma-Mafia"
+group = "io.github.mralex1810"
 version = "1.6.0"
 
 repositories {
@@ -23,8 +26,12 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
-java {
-    withJavadocJar()
+
+
+tasks.register('dokkaJavadocJar', Jar.class) {
+    dependsOn(dokkaJavadoc)
+    from(dokkaJavadoc)
+    archiveClassifier.set("javadoc")
 }
 
 publishing {
@@ -32,8 +39,43 @@ publishing {
         library(MavenPublication) {
             from components.java
             artifact kotlinSourcesJar
+            artifact tasks.dokkaJavadocJar
         }
     }
+    repositories {
+        maven {
+            setUrl(layout.buildDirectory.dir("staging-deploy"))
+        }
+    }
+}
+
+jreleaser {
+    release {
+        github {
+            skipRelease = true
+            skipTag = true
+        }
+    }
+    signing {
+        active = 'ALWAYS'
+        armored = true
+    }
+    deploy {
+        maven {
+            mavenCentral {
+                sonatype {
+                    active = 'ALWAYS'
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    stagingRepository('build/staging-deploy')
+                    sign = true
+                    checksums = true
+                    sourceJar = true
+                    javadocJar = true
+                }
+            }
+        }
+    }
+
 }
 
 jar {
