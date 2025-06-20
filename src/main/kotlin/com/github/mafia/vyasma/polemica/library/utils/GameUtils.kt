@@ -181,7 +181,7 @@ fun PolemicaGame.getKickedFromTable(beforeGamePhase: GamePhase? = null): List<Ki
             }
         }
     val disqualed = players!!.filter { it.disqual != null }
-        .filter { it.disqual!!.day < (beforeGamePhase?.num ?: Int.MAX_VALUE) }
+        .filter { it.disqual!!.day <= (beforeGamePhase?.num ?: Int.MAX_VALUE) }
         .map { KickedPlayer(it.position, GamePhase(it.disqual!!.day, Phase.NIGHT), KickReason.DISQUAL) }
     return (killedPlayers + votedPlayers + disqualed).toSet().sortedBy { it.gamePhase }
 }
@@ -204,6 +204,13 @@ fun PolemicaGame.getCriticDay(): Int? {
         }
     }
     return null
+}
+
+fun PolemicaGame.getPlayerNumStarted(day: Int): Position {
+    if (day == 1) {
+        return Position.ONE
+    }
+    return playersOnTable(GamePhase(day, Phase.DAY)).filter { it > getPlayerNumStarted(day - 1) }.min()
 }
 
 inline fun PolemicaGame.check(f: InPolemicaGameContext.() -> Int): Int {
