@@ -210,7 +210,12 @@ fun PolemicaGame.getPlayerNumStarted(day: Int): Position {
     if (day == 1) {
         return Position.ONE
     }
-    return playersOnTable(GamePhase(day, Phase.DAY)).filter { it > getPlayerNumStarted(day - 1) }.min()
+    val playersOnTable = playersOnTable(GamePhase(day, Phase.DAY))
+    val previousSpeechStarter = getPlayerNumStarted(day - 1)
+    if (playersOnTable.any { it > previousSpeechStarter }) {
+        return playersOnTable.filter { it > previousSpeechStarter }.min()
+    }
+    return playersOnTable.min()
 }
 
 inline fun PolemicaGame.check(f: InPolemicaGameContext.() -> Int): Int {
