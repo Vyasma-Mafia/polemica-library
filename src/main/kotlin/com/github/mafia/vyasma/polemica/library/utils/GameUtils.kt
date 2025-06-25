@@ -218,6 +218,21 @@ fun PolemicaGame.getPlayerNumStarted(day: Int): Position {
     return playersOnTable.min()
 }
 
+fun PolemicaGame.getVoteCandidatesOrder(day: Int): List<Position> {
+    val allVotes = votes ?: return emptyList()
+    val votesByDay = allVotes.filter { it.day == day }
+
+    val firstSpeech = getPlayerNumStarted(day)
+    val speechOrder =
+        Position.entries.filter { it >= firstSpeech }.sorted() +
+            Position.entries.filter { it < firstSpeech }.sorted()
+
+    return votesByDay.takeWhile { it.num == 0 }
+        .sortedBy { speechOrder.indexOf(it.voter) }
+        .map { it.candidate }
+}
+
+
 inline fun PolemicaGame.check(f: InPolemicaGameContext.() -> Int): Int {
     val context = InPolemicaGameContext(this)
     return try {
