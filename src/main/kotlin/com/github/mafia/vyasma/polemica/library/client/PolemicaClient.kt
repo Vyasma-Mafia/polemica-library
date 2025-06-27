@@ -45,6 +45,7 @@ interface PolemicaClient {
         val totalScores: Double,
         val totalAwards: Double,
         val guessScore: Double,
+        val firstShot: Long,
         val fpr: Long,
         val fouls: Long,
         val ciScores: Double
