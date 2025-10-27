@@ -13,7 +13,14 @@ data class Stage(
     val day: Int,
     val player: Int?,
     val voting: Int?
-) {
+) : Comparable<Stage> {
+    override fun compareTo(other: Stage): Int = when {
+        day < other.day -> -1
+        day > other.day -> 1
+        (player ?: 0) < (other.player ?: 0) -> -1
+        (player ?: 0) > (other.player ?: 0) -> 1
+        else -> type.compareTo(other.type)
+    }
 }
 
 @JsonSerialize(using = StringEnumSerializer::class)
