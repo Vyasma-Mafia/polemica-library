@@ -92,7 +92,7 @@ interface PolemicaClient {
         val memberCount: Int?,
         val rating: Int?,
         val phoneRequired: Boolean?,
-        val winScores: Int?,
+        val winScores: Double?,
         val hasScores: Boolean?
     )
 
