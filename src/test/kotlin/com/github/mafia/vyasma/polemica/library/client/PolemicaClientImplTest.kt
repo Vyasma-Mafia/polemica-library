@@ -185,6 +185,7 @@ class PolemicaClientImplTest {
                     """
                     {
                       "id": 536971,
+                      "name": "Test table",
                       "master": 11,
                       "referee": { "id": 12, "username": "Ref" },
                       "scoringVersion": "4",
@@ -217,6 +218,7 @@ class PolemicaClientImplTest {
 
         assertNotNull(match)
         assertEquals(536971L, match.id)
+        assertEquals("Test table", match.name)
         assertEquals(2, mockWebServer.requestCount)
 
         val loginRequest = mockWebServer.takeRequest()
