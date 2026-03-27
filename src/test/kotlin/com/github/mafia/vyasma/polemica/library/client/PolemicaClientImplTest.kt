@@ -9,12 +9,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class PolemicaClientImplTest {
 
     private lateinit var mockWebServer: MockWebServer
     private lateinit var polemicaClient: PolemicaClientImpl
-    private val objectMapper = ObjectMapper().registerKotlinModule()
+    private val objectMapper = ObjectMapper().findAndRegisterModules().registerKotlinModule()
 
     @BeforeEach
     fun setUp() {
@@ -166,5 +167,116 @@ class PolemicaClientImplTest {
         val apiRequest = mockWebServer.takeRequest()
         assertEquals("/v1/competitions", apiRequest.path)
         assertEquals("Bearer initial_token", apiRequest.getHeader("Authorization"))
+    }
+
+    @Test
+    fun `test get match with version parameter`() {
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody("""{"access_token": "initial_token"}""")
+                .addHeader("Content-Type", "application/json")
+        )
+
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody(
+                    """
+                    {
+                      "id": 536971,
+                      "master": 11,
+                      "referee": { "id": 12, "username": "Ref" },
+                      "scoringVersion": "4",
+                      "scoringType": 1,
+                      "version": 4,
+                      "zeroVoting": null,
+                      "tags": [],
+                      "players": [],
+                      "checks": [],
+                      "shots": [],
+                      "stage": null,
+                      "votes": [],
+                      "comKiller": null,
+                      "bonuses": [],
+                      "started": "2025-04-17T14:00:00",
+                      "stop": null,
+                      "isLive": false,
+                      "result": null,
+                      "num": 1,
+                      "table": 1,
+                      "phase": 1,
+                      "factor": 1.0
+                    }
+                    """.trimIndent()
+                )
+                .addHeader("Content-Type", "application/json")
+        )
+
+        val match = polemicaClient.getMatch(PolemicaClient.PolemicaMatchId(matchId = 536971, version = 4))
+
+        assertNotNull(match)
+        assertEquals(536971L, match.id)
+        assertEquals(2, mockWebServer.requestCount)
+
+        val loginRequest = mockWebServer.takeRequest()
+        assertEquals("/v1/auth/login", loginRequest.path)
+
+        val matchRequest = mockWebServer.takeRequest()
+        assertEquals("/v1/matches/536971?version=4", matchRequest.path)
+        assertEquals("Bearer initial_token", matchRequest.getHeader("Authorization"))
+    }
+
+    @Test
+    fun `test get profile games without authorization header`() {
+        val profileBaseUrl = mockWebServer.url("/").toString().removeSuffix("/")
+        polemicaClient = PolemicaClientImpl(
+            polemicaBaseUrl = profileBaseUrl,
+            polemicaUsername = "testuser",
+            polemicaPassword = "testpass",
+            objectMapper = objectMapper,
+            profileSiteBaseUrl = profileBaseUrl
+        )
+
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody(
+                    """
+                    {
+                      "rows": [
+                        {
+                          "id": 340997,
+                          "type": "match",
+                          "game_mode": { "value": "competition", "title": "Турнир" },
+                          "date_start": "2025-04-17 14:00:00",
+                          "date_ends": null,
+                          "duration": null,
+                          "points": 0.3,
+                          "sp": null,
+                          "role": { "type": "civilian", "title": "Мирный" },
+                          "result": { "title": "Поражение", "code": "fail" },
+                          "mmr": null
+                        }
+                      ],
+                      "totalCount": 13
+                    }
+                    """.trimIndent()
+                )
+                .addHeader("Content-Type", "application/json")
+        )
+
+        val profileGames = polemicaClient.getProfileGames(userId = 76666, page = 1, limit = 201)
+
+        assertNotNull(profileGames)
+        assertEquals(13L, profileGames.totalCount)
+        assertEquals(1, profileGames.rows.size)
+        assertEquals(340997L, profileGames.rows[0].id)
+        assertEquals("competition", profileGames.rows[0].gameMode?.value)
+        assertEquals(1, mockWebServer.requestCount)
+
+        val profileRequest = mockWebServer.takeRequest()
+        assertEquals("/profile/default/get-games?userId=76666&page=1&limit=201", profileRequest.path)
+        assertNull(profileRequest.getHeader("Authorization"))
     }
 }

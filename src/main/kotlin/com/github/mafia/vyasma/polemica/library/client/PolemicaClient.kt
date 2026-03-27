@@ -1,6 +1,7 @@
 package com.github.mafia.vyasma.polemica.library.client
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.github.mafia.vyasma.polemica.library.model.game.PolemicaGame
@@ -14,7 +15,9 @@ import java.time.LocalDateTime
 interface PolemicaClient {
 
     fun getGameFromClub(clubGameId: PolemicaClubGameId): PolemicaGame
+    fun getMatch(polemicaMatchId: PolemicaMatchId): PolemicaGame
     fun getGamesFromClub(clubId: Long, offset: Long, limit: Long): List<PolemicaClubGameReference>
+    fun getProfileGames(userId: Long, page: Long, limit: Long): ProfileGamesPage
     fun getCompetitions(): List<PolemicaCompetition>
     fun getCompetition(id: Long): PolemicaCompetition?
     fun getGamesFromCompetition(id: Long): List<PolemicaTournamentGameReference>
@@ -97,6 +100,7 @@ interface PolemicaClient {
     )
 
     data class PolemicaClubGameId(val clubId: Long, val gameId: Long, val version: Long? = null)
+    data class PolemicaMatchId(val matchId: Long, val version: Long? = null)
     data class PolemicaCompetitionGameId(val competitionId: Long, val gameId: Long, val version: Long? = null)
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -118,5 +122,47 @@ interface PolemicaClient {
         val result: PolemicaGameResult?,
         val referee: PolemicaUser,
         val version: Long?
+    )
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    data class ProfileGamesPage(
+        val rows: List<ProfileGameRow>,
+        val totalCount: Long
+    )
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    data class ProfileGameRow(
+        val id: Long,
+        val type: String?,
+        @JsonProperty("game_mode")
+        val gameMode: ProfileGameMode?,
+        @JsonProperty("date_start")
+        val dateStart: String?,
+        @JsonProperty("date_ends")
+        val dateEnds: String?,
+        val duration: String?,
+        val points: Double?,
+        val sp: Double?,
+        val role: ProfileGameRole?,
+        val result: ProfileGameResult?,
+        val mmr: Double?
+    )
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    data class ProfileGameMode(
+        val value: String?,
+        val title: String?
+    )
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    data class ProfileGameRole(
+        val type: String?,
+        val title: String?
+    )
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    data class ProfileGameResult(
+        val title: String?,
+        val code: String?
     )
 }

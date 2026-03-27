@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.ExchangeFunction
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
+import java.net.URI
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -19,23 +20,26 @@ class PolemicaClientImpl(
     private val polemicaBaseUrl: String,
     private val polemicaUsername: String,
     private val polemicaPassword: String,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val profileSiteBaseUrl: String = "https://polemicagame.com"
 ) : PolemicaClient {
 
     private val logger = LoggerFactory.getLogger(PolemicaClientImpl::class.java)
     private var polemicaToken: String? = null
     private val lock = ReentrantLock()
+    private val normalizedProfileSiteBaseUrl = profileSiteBaseUrl.removeSuffix("/")
+    private val profileSiteHost = URI.create(normalizedProfileSiteBaseUrl).host
     val webClient = WebClient.builder()
         .codecs { it.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper)) }
         .codecs { it.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper)) }
         .baseUrl(polemicaBaseUrl)
         .filter { request, next ->
-        if (isAuthRequest(request)) {
-            next.exchange(request)
-        } else {
-            addAuthorizationHeader(request, next)
-        }
-    }.build()
+            if (isAuthRequest(request) || isProfilePublicRequest(request)) {
+                next.exchange(request)
+            } else {
+                addAuthorizationHeader(request, next)
+            }
+        }.build()
 
     override fun getGameFromClub(clubGameId: PolemicaClient.PolemicaClubGameId): PolemicaGame {
         return webClient.get()
@@ -45,6 +49,14 @@ class PolemicaClientImpl(
             .retrieve()
             .bodyToMono(PolemicaGame::class.java)
             .block() ?: throw RuntimeException("Get game from club error")
+    }
+
+    override fun getMatch(polemicaMatchId: PolemicaClient.PolemicaMatchId): PolemicaGame {
+        return webClient.get()
+            .uri("/v1/matches/${polemicaMatchId.matchId}" + getVersionQueryParam(polemicaMatchId.version))
+            .retrieve()
+            .bodyToMono(PolemicaGame::class.java)
+            .block() ?: throw RuntimeException("Get match error")
     }
 
     private fun getVersionQueryParam(version: Long?) = if (version != null) "?version=$version" else ""
@@ -60,6 +72,17 @@ class PolemicaClientImpl(
             .bodyToFlux(PolemicaClient.PolemicaClubGameReference::class.java)
             .collectList()
             .block() ?: throw RuntimeException("Get games from club error")
+    }
+
+    override fun getProfileGames(userId: Long, page: Long, limit: Long): PolemicaClient.ProfileGamesPage {
+        val uri =
+            "$normalizedProfileSiteBaseUrl/profile/default/get-games?userId=$userId&page=$page&limit=$limit"
+
+        return webClient.get()
+            .uri(uri)
+            .retrieve()
+            .bodyToMono(PolemicaClient.ProfileGamesPage::class.java)
+            .block() ?: throw RuntimeException("Get profile games error")
     }
 
     override fun getCompetitions(): List<PolemicaClient.PolemicaCompetition> {
@@ -188,6 +211,11 @@ class PolemicaClientImpl(
 
     private fun isAuthRequest(request: ClientRequest): Boolean {
         return request.url().path.startsWith("/v1/auth/login")
+    }
+
+    private fun isProfilePublicRequest(request: ClientRequest): Boolean {
+        val requestUrl = request.url()
+        return requestUrl.host == profileSiteHost && requestUrl.path == "/profile/default/get-games"
     }
 
     private fun getValidToken(): String {
