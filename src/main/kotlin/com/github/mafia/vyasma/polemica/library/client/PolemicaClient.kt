@@ -145,6 +145,7 @@ interface PolemicaClient {
         val sp: Double?,
         val role: ProfileGameRole?,
         val result: ProfileGameResult?,
+        @JsonDeserialize(using = ProfileGameMmrDeserializer::class)
         val mmr: Double?
     )
 

@@ -275,10 +275,55 @@ class PolemicaClientImplTest {
         assertEquals(1, profileGames.rows.size)
         assertEquals(340997L, profileGames.rows[0].id)
         assertEquals("competition", profileGames.rows[0].gameMode?.value)
+        assertNull(profileGames.rows[0].mmr)
         assertEquals(1, mockWebServer.requestCount)
 
         val profileRequest = mockWebServer.takeRequest()
         assertEquals("/profile/default/get-games?userId=76666&page=1&limit=201", profileRequest.path)
         assertNull(profileRequest.getHeader("Authorization"))
+    }
+
+    @Test
+    fun `test get profile games deserializes mmr object`() {
+        val profileBaseUrl = mockWebServer.url("/").toString().removeSuffix("/")
+        polemicaClient = PolemicaClientImpl(
+            polemicaBaseUrl = profileBaseUrl,
+            polemicaUsername = "testuser",
+            polemicaPassword = "testpass",
+            objectMapper = objectMapper,
+            profileSiteBaseUrl = profileBaseUrl
+        )
+
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody(
+                    """
+                    {
+                      "rows": [
+                        {
+                          "id": 1,
+                          "type": "match",
+                          "game_mode": null,
+                          "date_start": null,
+                          "date_ends": null,
+                          "duration": null,
+                          "points": null,
+                          "sp": null,
+                          "role": null,
+                          "result": null,
+                          "mmr": { "value": 1234.5 }
+                        }
+                      ],
+                      "totalCount": 1
+                    }
+                    """.trimIndent()
+                )
+                .addHeader("Content-Type", "application/json")
+        )
+
+        val profileGames = polemicaClient.getProfileGames(userId = 1, page = 1, limit = 10)
+
+        assertEquals(1234.5, profileGames.rows[0].mmr)
     }
 }
