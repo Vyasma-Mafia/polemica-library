@@ -73,12 +73,16 @@ fun PolemicaGame.getFinalVotes(beforeGamePhase: GamePhase?): List<FinalVote> {
             return@map emptyList()
         }
         val realVotes = votes.filter { it.num == votesNumMax }
-        val votingResult = realVotes.groupBy { it.candidate } // candidate -> [voters]
+        val votesForTally = realVotes.filter { it.candidate != null }
+        if (votesForTally.isEmpty()) {
+            return@map emptyList()
+        }
+        val votingResult = votesForTally.groupBy { it.candidate!! } // candidate -> [voters]
         if (votingResult.isEmpty()) {
             emptyList()
         } else if (votingResult.values.count { it.size == votingResult.values.maxOf { it.size } } > 1 && votingResult.size > 1) { // попил
             val convicted = votingResult.keys.toList()
-            val expelVoters = votes.filter { it.num == null }
+            val expelVoters = votes.filter { it.num == null && it.candidate != null }
             val notExpelVotersSize = realVotes.size - expelVoters.size
             val expelled = expelVoters.size > notExpelVotersSize
             expelVoters.map { FinalVote(day, it.voter, convicted, expelled) }
@@ -88,7 +92,10 @@ fun PolemicaGame.getFinalVotes(beforeGamePhase: GamePhase?): List<FinalVote> {
                 return@map emptyList()
             }
             realVotes
-                .map { FinalVote(day, it.voter, listOf(it.candidate), it.candidate == convicted) }
+                .mapNotNull { rv ->
+                    val c = rv.candidate ?: return@mapNotNull null
+                    FinalVote(day, rv.voter, listOf(c), c == convicted)
+                }
         }
     }?.flatten() ?: listOf()
 }
@@ -111,7 +118,7 @@ fun PolemicaGame.getVotingParticipants(day: Int, round: Int): List<Position> {
     if (round == 1) {
         return votes
             .filter { it.day == day && it.num == 0 }
-            .map { it.candidate }
+            .mapNotNull { it.candidate }
             .distinct()
     }
 
@@ -125,7 +132,8 @@ fun PolemicaGame.getVotingParticipants(day: Int, round: Int): List<Position> {
 
     // Подсчет голосов за каждого кандидата
     val voteCounts = previousRoundVotes
-        .groupBy { it.candidate }
+        .filter { it.candidate != null }
+        .groupBy { it.candidate!! }
         .mapValues { it.value.size }
 
     // Находим максимальное количество голосов
@@ -229,7 +237,7 @@ fun PolemicaGame.getVoteCandidatesOrder(day: Int): List<Position> {
 
     return votesByDay.takeWhile { it.num == 0 }
         .sortedBy { speechOrder.indexOf(it.voter) }
-        .map { it.candidate }
+        .mapNotNull { it.candidate }
 }
 
 
