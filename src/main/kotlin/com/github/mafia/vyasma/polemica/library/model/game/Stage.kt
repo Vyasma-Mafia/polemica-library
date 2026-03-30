@@ -36,6 +36,7 @@ enum class StageType(override val value: String) : StringEnum {
     SHOOTED("shooted"),
     RESPEECH("reSpeech"),
     LIFT("lift"),
+    CHECKS("checks"),
     DON_CHECK("donCheck"),
     COM_CHECK("comCheck"),
     GUESS("guess"),
