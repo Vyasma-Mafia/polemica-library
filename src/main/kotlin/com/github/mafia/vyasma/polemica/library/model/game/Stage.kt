@@ -38,6 +38,7 @@ enum class StageType(override val value: String) : StringEnum {
     LIFT("lift"),
     CHECKS("checks"),
     TO_VOTING("toVoting"),
+    TO_LIFT("toLift"),
     LIFT_RESULT("liftResult"),
     TO_DAY("toDay"),
     TO_NIGHT("toNight"),
