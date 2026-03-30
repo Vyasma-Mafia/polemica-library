@@ -1,9 +1,6 @@
 package com.github.mafia.vyasma.polemica.library.model.game
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonSetter
-import com.fasterxml.jackson.annotation.Nulls
 import java.time.LocalDateTime
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -11,7 +8,8 @@ data class PolemicaGame(
     val id: Long?,
     val name: String?,
     val master: Long,
-    val referee: PolemicaUser,
+    /** May be absent or null for some API payloads (e.g. in-progress or legacy games). */
+    val referee: PolemicaUser?,
     val scoringVersion: String?,
     val scoringType: Int,
     val version: Int,
